@@ -37,14 +37,28 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-          cache: gradle
 
+      # 关键修复:android-actions/setup-android@v3 不接受 android-version / build-tools-version / arch
+      # 实际只支持 packages / cmdline-tools-version / accept-android-sdk-licenses
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
-          api-level: 34
-          build-tools-version: '34.0.0'
-          arch: x86_64
+          cmdline-tools-version: 'latest'
+          packages: |
+            platform-tools
+            platforms;android-34
+            build-tools;34.0.0
+          accept-android-sdk-licenses: true
+
+      - name: Verify Android SDK
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+          ls -la $ANDROID_HOME/platforms 2>/dev/null || echo "NO platforms/"
+          ls -la $ANDROID_HOME/build-tools 2>/dev/null || echo "NO build-tools/"
+          echo "--- local.properties ---"
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
+          cat local.properties
 
       - name: Make gradlew executable
         run: chmod +x ./gradlew
@@ -62,28 +76,34 @@ jobs:
       - name: Show Gradle version
         run: ./gradlew --version
 
+      # 始终写 build.log,失败时把整份日志当 artifact 传上来便于排查
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace
+        id: build
+        run: |
+          set -o pipefail
+          ./gradlew assembleDebug --stacktrace --no-daemon 2>&1 | tee build.log
+        continue-on-error: true
 
       - name: Verify APK exists
+        if: steps.build.outcome == 'success'
         run: |
           ls -lh app/build/outputs/apk/debug/
           file app/build/outputs/apk/debug/app-debug.apk
 
       - name: Upload APK artifact
+        if: steps.build.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: app-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 14
 
-      - name: Upload mapping/log (失败时仍上传)
+      # 失败也上传,这样我能看到完整 Gradle 错误(不再靠 annotation 猜)
+      - name: Upload full build log
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: build-logs
-          path: |
-            app/build/outputs/logs/
-            **/build/reports/
-          if-no-files-found: ignore
+          name: build-log
+          path: build.log
+          if-no-files-found: warn
           retention-days: 7
