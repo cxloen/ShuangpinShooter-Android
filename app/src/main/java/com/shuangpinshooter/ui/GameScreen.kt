@@ -334,10 +334,11 @@ private fun DrawScope.drawInputBar(buf: String, scale: Float, m: TextMeasurer) {
         fontWeight = FontWeight.Bold,
         fontFamily = FontFamily.Monospace
     )
+    val textColor = if (buf.isEmpty()) Color(0xFF94A3B8) else Primary
     val tsz = m.measure(text, style)
     drawText(m, text,
         topLeft = Offset((size.width - tsz.size.width) / 2f, rectY + (ib - tsz.size.height) / 2f),
-        style = style.copy(color = color))
+        style = style.copy(color = textColor))
 }
 
 // ============================================================
