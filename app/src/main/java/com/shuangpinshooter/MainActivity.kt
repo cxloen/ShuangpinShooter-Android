@@ -22,7 +22,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shuangpinshooter.ui.GameScreen
 import com.shuangpinshooter.ui.HelpDialog
 import com.shuangpinshooter.ui.SettingsDialog
-import com.shuangpinshooter.ui.ShuangpinShooterTheme
+import com.shuangpinshooter.ui.theme.ShuangpinShooterTheme
 import com.shuangpinshooter.ui.VerifyDialog
 
 /**
