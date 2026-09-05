@@ -38,26 +38,39 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      # 关键修复:android-actions/setup-android@v3 不接受 android-version / build-tools-version / arch
-      # 实际只支持 packages / cmdline-tools-version / accept-android-sdk-licenses
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          cmdline-tools-version: 'latest'
-          packages: |
-            platform-tools
-            platforms;android-34
-            build-tools;34.0.0
-          accept-android-sdk-licenses: true
-
-      - name: Verify Android SDK
+      # 手动装 Android SDK —— 不用 android-actions/setup-android(它的 input 错且错误不暴露)
+      - name: Install Android SDK (manual)
+        env:
+          ANDROID_SDK_ROOT: ${{ github.workspace }}/.android-sdk
         run: |
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
-          ls -la $ANDROID_HOME/platforms 2>/dev/null || echo "NO platforms/"
-          ls -la $ANDROID_HOME/build-tools 2>/dev/null || echo "NO build-tools/"
-          echo "--- local.properties ---"
-          echo "sdk.dir=$ANDROID_HOME" > local.properties
+          set -euxo pipefail
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
+          mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools"
+          cd "$ANDROID_SDK_ROOT/cmdline-tools"
+          echo ">>> Downloading commandlinetools-linux-11076708_latest.zip"
+          wget -q --show-progress \
+            https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip \
+            -O cmdline-tools.zip
+          echo ">>> Unzip"
+          unzip -q cmdline-tools.zip
+          mv cmdline-tools latest
+          rm cmdline-tools.zip
+
+          export PATH="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH"
+          echo "PATH=$PATH" >> $GITHUB_ENV
+          echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
+
+          echo ">>> Accepting licenses"
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
+
+          echo ">>> Installing platforms;android-34 + build-tools;34.0.0 + platform-tools"
+          sdkmanager --install "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+
+          echo ">>> Verifying SDK"
+          ls -la "$ANDROID_SDK_ROOT/platforms"
+          ls -la "$ANDROID_SDK_ROOT/build-tools"
+
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
           cat local.properties
 
       - name: Make gradlew executable
