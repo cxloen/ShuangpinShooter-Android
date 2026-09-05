@@ -196,20 +196,20 @@ private fun DrawScope.drawHud(vm: GameViewModel, scale: Float, m: TextMeasurer) 
         fontWeight = FontWeight.Bold,
         fontFamily = FontFamily.SansSerif
     )
-    drawText(m, "Lv${vm.levelId}", Muted,
+    drawText(m, "Lv${vm.levelId}", color = Muted,
         topLeft = Offset(4f * scale, 1f * scale), style = style)
-    drawText(m, "♥${vm.lives.coerceAtLeast(0)}", Danger,
+    drawText(m, "♥${vm.lives.coerceAtLeast(0)}", color = Danger,
         topLeft = Offset(26f * scale, 1f * scale), style = style)
 
     val t = vm.timeLeft.toInt().coerceAtLeast(0)
     val timeStr = "T${"%02d".format(t)}"
     val ts = m.measure(timeStr, style)
-    drawText(m, timeStr, Dark,
+    drawText(m, timeStr, color = Dark,
         topLeft = Offset((size.width - ts.size.width) / 2f, 1f * scale), style = style)
 
     val rightStr = "${vm.score}  x${vm.combo}"
     val rs = m.measure(rightStr, style)
-    drawText(m, rightStr, Primary,
+    drawText(m, rightStr, color = Primary,
         topLeft = Offset(size.width - rs.size.width - 4f * scale, 1f * scale), style = style)
 }
 
@@ -247,7 +247,7 @@ private fun DrawScope.drawEnemy(e: Enemy, isMatch: Boolean, scale: Float, m: Tex
     )
     val hanziColor = if (isMatch) Color.White else Primary
     val hsz = m.measure(e.hanzi, hanziStyle)
-    drawText(m, e.hanzi, hanziColor,
+    drawText(m, e.hanzi, color = hanziColor,
         topLeft = Offset(cx - hsz.size.width / 2f, y + 18f * scale), style = hanziStyle)
 
     val tagStyle = TextStyle(
@@ -266,7 +266,7 @@ private fun DrawScope.drawEnemy(e: Enemy, isMatch: Boolean, scale: Float, m: Tex
         cornerRadius = CornerRadius(6f * scale))
     val tagColor = if (isMatch) Color.White else Muted
     val tsz = m.measure(e.sp, tagStyle)
-    drawText(m, e.sp, tagColor,
+    drawText(m, e.sp, color = tagColor,
         topLeft = Offset(tagX + (tagW - tsz.size.width) / 2f, tagY + (tagH - tsz.size.height) / 2f),
         style = tagStyle)
 }
@@ -336,7 +336,7 @@ private fun DrawScope.drawInputBar(buf: String, scale: Float, m: TextMeasurer) {
     )
     val tsz = m.measure(text, style)
     val color = if (buf.isEmpty()) Color(0xFF94A3B8) else Primary
-    drawText(m, text, color,
+    drawText(m, text, color = color,
         topLeft = Offset((size.width - tsz.size.width) / 2f, rectY + (ib - tsz.size.height) / 2f),
         style = style)
 }
