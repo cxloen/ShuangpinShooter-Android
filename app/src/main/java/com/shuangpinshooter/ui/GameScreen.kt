@@ -196,21 +196,21 @@ private fun DrawScope.drawHud(vm: GameViewModel, scale: Float, m: TextMeasurer) 
         fontWeight = FontWeight.Bold,
         fontFamily = FontFamily.SansSerif
     )
-    drawText(m, "Lv${vm.levelId}", color = Muted,
-        topLeft = Offset(4f * scale, 1f * scale), style = style)
-    drawText(m, "♥${vm.lives.coerceAtLeast(0)}", color = Danger,
-        topLeft = Offset(26f * scale, 1f * scale), style = style)
+    drawText(m, "Lv${vm.levelId}",
+        topLeft = Offset(4f * scale, 1f * scale), style = style.copy(color = Muted))
+    drawText(m, "♥${vm.lives.coerceAtLeast(0)}",
+        topLeft = Offset(26f * scale, 1f * scale), style = style.copy(color = Danger))
 
     val t = vm.timeLeft.toInt().coerceAtLeast(0)
     val timeStr = "T${"%02d".format(t)}"
     val ts = m.measure(timeStr, style)
-    drawText(m, timeStr, color = Dark,
-        topLeft = Offset((size.width - ts.size.width) / 2f, 1f * scale), style = style)
+    drawText(m, timeStr,
+        topLeft = Offset((size.width - ts.size.width) / 2f, 1f * scale), style = style.copy(color = Dark))
 
     val rightStr = "${vm.score}  x${vm.combo}"
     val rs = m.measure(rightStr, style)
-    drawText(m, rightStr, color = Primary,
-        topLeft = Offset(size.width - rs.size.width - 4f * scale, 1f * scale), style = style)
+    drawText(m, rightStr,
+        topLeft = Offset(size.width - rs.size.width - 4f * scale, 1f * scale), style = style.copy(color = Primary))
 }
 
 private fun DrawScope.drawEnemy(e: Enemy, isMatch: Boolean, scale: Float, m: TextMeasurer) {
@@ -247,8 +247,8 @@ private fun DrawScope.drawEnemy(e: Enemy, isMatch: Boolean, scale: Float, m: Tex
     )
     val hanziColor = if (isMatch) Color.White else Primary
     val hsz = m.measure(e.hanzi, hanziStyle)
-    drawText(m, e.hanzi, color = hanziColor,
-        topLeft = Offset(cx - hsz.size.width / 2f, y + 18f * scale), style = hanziStyle)
+    drawText(m, e.hanzi,
+        topLeft = Offset(cx - hsz.size.width / 2f, y + 18f * scale), style = hanziStyle.copy(color = hanziColor))
 
     val tagStyle = TextStyle(
         fontSize = (8 * scale).sp,
@@ -266,9 +266,9 @@ private fun DrawScope.drawEnemy(e: Enemy, isMatch: Boolean, scale: Float, m: Tex
         cornerRadius = CornerRadius(6f * scale))
     val tagColor = if (isMatch) Color.White else Muted
     val tsz = m.measure(e.sp, tagStyle)
-    drawText(m, e.sp, color = tagColor,
+    drawText(m, e.sp,
         topLeft = Offset(tagX + (tagW - tsz.size.width) / 2f, tagY + (tagH - tsz.size.height) / 2f),
-        style = tagStyle)
+        style = tagStyle.copy(color = tagColor))
 }
 
 private fun DrawScope.drawExplosions(vm: GameViewModel, scale: Float) {
@@ -335,10 +335,9 @@ private fun DrawScope.drawInputBar(buf: String, scale: Float, m: TextMeasurer) {
         fontFamily = FontFamily.Monospace
     )
     val tsz = m.measure(text, style)
-    val color = if (buf.isEmpty()) Color(0xFF94A3B8) else Primary
-    drawText(m, text, color = color,
+    drawText(m, text,
         topLeft = Offset((size.width - tsz.size.width) / 2f, rectY + (ib - tsz.size.height) / 2f),
-        style = style)
+        style = style.copy(color = color))
 }
 
 // ============================================================
